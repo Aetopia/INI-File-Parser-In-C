@@ -1,4 +1,4 @@
-#include "inifile.h"
+#include "iniparser.h"
 
 char *strtrim(char *src)
 {
@@ -63,40 +63,40 @@ char *fileread(char *filename)
 
 inifile iniparsetokens(char **tokens, long count)
 {
-    inifile inifile = {};
+    inifile file = {};
     section *section = NULL;
     for (long i = 0; i < count; i += 1)
     {
         if (tokens[i][0] == '[' &&
             tokens[i][strlen(tokens[i]) - 1] == ']')
         {
-            inifile.count += 1;
-            inifile.sections =
-                realloc(inifile.sections, sizeof(section) + (inifile.count - 1));
-            inifile.sections[inifile.count - 1].section =
+            file.count += 1;
+            file.sections =
+                realloc(file.sections, sizeof(section) + (file.count - 1));
+            file.sections[file.count - 1].section =
                 strcpy(malloc(strlen(tokens[i]) + 1), tokens[i]);
 
-            if (strlen(inifile.sections[inifile.count - 1].section))
+            if (strlen(file.sections[file.count - 1].section))
             {
 
-                inifile.sections[inifile.count - 1].section[0] = ' ';
-                inifile.sections[inifile.count - 1].section[strlen(tokens[i]) - 1] = '\0';
+                file.sections[file.count - 1].section[0] = ' ';
+                file.sections[file.count - 1].section[strlen(tokens[i]) - 1] = '\0';
 
-                inifile.sections[inifile.count - 1].section =
-                    realloc(strtrim(inifile.sections[inifile.count - 1].section),
-                            strlen(inifile.sections[inifile.count - 1].section) + 1);
+                file.sections[file.count - 1].section =
+                    realloc(strtrim(file.sections[file.count - 1].section),
+                            strlen(file.sections[file.count - 1].section) + 1);
 
-                section = &inifile.sections[inifile.count - 1];
+                section = &file.sections[file.count - 1];
                 section->count = 0;
                 section->keyvalues = NULL;
                 printf("[%s]\n", section->section);
             }
             else
             {
-                free(inifile.sections);
-                free(inifile.sections[inifile.count - 1].section);
-                if (inifile.count)
-                    inifile.count -= 1;
+                free(file.sections);
+                free(file.sections[file.count - 1].section);
+                if (file.count)
+                    file.count -= 1;
             }
         }
         else if (strchr(tokens[i], '=') &&
@@ -131,7 +131,7 @@ inifile iniparsetokens(char **tokens, long count)
         }
     }
 
-    return inifile;
+    return file;
 }
 
 inifile iniread(char *filename)
@@ -139,12 +139,12 @@ inifile iniread(char *filename)
     char *dstbuf = fileread(filename);
     long count = 0;
     char **tokens = strtokens(&count, "\n", dstbuf);
-    inifile inifile = iniparsetokens(tokens, count);
+    inifile file = iniparsetokens(tokens, count);
 
     for (long i = 0; i < count; i += 1)
         free(tokens[i]);
     free(tokens);
     free(dstbuf);
 
-    return inifile;
+    return file;
 }

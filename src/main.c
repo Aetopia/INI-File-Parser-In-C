@@ -1,4 +1,4 @@
-#include "inifile.h"
+#include "iniparser.h"
 
 int main()
 {
